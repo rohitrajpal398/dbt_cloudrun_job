@@ -31,7 +31,6 @@ jobs:
 
       - name: Push Docker image
         run: |
-          gcloud auth configure-docker
           docker push us-central1-docker.pkg.dev/airy-actor-457907-a8/artifact-registry-dev/dbt-docker-image
 
       - name: Deploy to Cloud Run
