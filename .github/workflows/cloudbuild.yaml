@@ -16,7 +16,7 @@ jobs:
 
       - name: Decode service account key
         run: |
-          echo "${{ secrets.GCP_SA_KEY }}" | base64 -d > keyfile.json
+         echo '${{ secrets.GCP_SA_KEY }}' > "${{ github.workspace }}/key.json"
 
       - name: Set up gcloud
         uses: google-github-actions/setup-gcloud@v1
