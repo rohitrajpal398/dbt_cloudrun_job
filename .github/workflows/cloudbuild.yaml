@@ -1,0 +1,46 @@
+name: Deploy DBT to Cloud Run
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    name: Build & Deploy
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Decode service account key
+        run: |
+          echo "${{ secrets.GCP_SA_KEY }}" | base64 -d > keyfile.json
+
+      - name: Set up gcloud
+        uses: google-github-actions/setup-gcloud@v1
+        with:
+          project_id: ${{ secrets.GCP_PROJECT_ID }}
+          service_account_key: ${{ secrets.GCP_SA_KEY }}
+          export_default_credentials: true
+
+      - name: Build Docker image
+        run: |
+          docker build -t us-central1-docker.pkg.dev/airy-actor-457907-a8/artifact-registry-dev/dbt-docker-image .
+
+      - name: Push Docker image
+        run: |
+          gcloud auth configure-docker
+          docker push us-central1-docker.pkg.dev/airy-actor-457907-a8/artifact-registry-dev/dbt-docker-image
+
+      - name: Deploy to Cloud Run
+        run: |
+          gcloud run deploy dbt-cloud-run-job \
+            --image us-central1-docker.pkg.dev/airy-actor-457907-a8/artifact-registry-dev/dbt-docker-image \
+            --region us-central1 \
+            --platform managed \
+            --memory 1Gi \
+            --task-timeout 900 \
+            --quiet \
+            --allow-unauthenticated
