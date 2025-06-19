@@ -47,6 +47,6 @@ jobs:
             --region us-central1 \
             --platform managed \
             --memory 1Gi \
-            --task-timeout 900 \
+            --timeout 900 \
             --quiet \
             --allow-unauthenticated
